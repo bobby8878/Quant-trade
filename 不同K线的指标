@@ -1,0 +1,33 @@
+//@version=5
+strategy("Stock Trading Strategy", overlay = true, shorttitle = "Stock Strategy")
+
+// 计算MA10、MA30和MA60
+ma10 = ta.sma(close, 10)
+ma30 = ta.sma(close, 30)
+ma60 = ta.sma(close, 60)
+
+// 获取指数"DJI"的周线收盘价和MA60
+dji_weekly_close = request.security("DJI", "W", close)
+dji_ma60_weekly = ta.sma(dji_weekly_close, 60)
+
+// 定义买入条件：指数"DJI"的周线收盘价大于其周线的MA60且当前标的收盘价大于MA30
+buy_condition = dji_weekly_close > dji_ma60_weekly and close > ma30
+
+// 定义卖出条件：当前标的收盘价小于MA10
+sell_condition = close < ma10
+
+// 计算满仓份额
+position_size = strategy.equity * 0.99 / close
+
+// 执行买入操作
+if buy_condition
+    strategy.entry("Buy", strategy.long, qty = position_size)
+
+// 执行卖出操作
+if sell_condition
+    strategy.close("Buy")
+
+// 绘制MA10、MA30和MA60线
+plot(ma10, color=color.blue, title="MA10")
+plot(ma30, color=color.orange, title="MA30")
+plot(ma60, color=color.purple, title="MA60")
