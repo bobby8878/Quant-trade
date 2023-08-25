@@ -1,0 +1,31 @@
+//@version=5
+strategy(title = "布林带 %B 策略", shorttitle = "BB %B", overlay = true)
+
+// 输入参数
+length = input.int(20, minval=1, title="周期")
+src = input(close, title="数据源")
+mult = input.float(2.0, minval=0.001, maxval=50, title="标准差倍数")
+
+// 计算布林带上下轨
+basis = ta.sma(src, length)
+dev = mult * ta.stdev(src, length)
+upper = basis + dev
+lower = basis - dev
+
+// 计算布林带 %B 指标
+bbr = (src - lower) / (upper - lower)
+
+// 判断买卖条件
+buy_condition = bbr < 0.01
+sell_condition = bbr > 0.99
+
+// 标注买点和卖点
+plotshape(series=buy_condition, location=location.belowbar, color=color.green, style=shape.triangleup, title="买点")
+plotshape(series=sell_condition, location=location.abovebar, color=color.red, style=shape.triangledown, title="卖点")
+
+// 执行策略逻辑
+if buy_condition
+    strategy.entry("买入", strategy.long)
+
+if sell_condition
+    strategy.close("买入")
