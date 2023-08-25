@@ -1,0 +1,22 @@
+//@version=5
+strategy("Moving Average Crossover", overlay = true)
+
+// 输入参数
+slow_length = input.int(60, title="Slow MA Length")
+
+// 计算移动平均
+slow_ma = ta.sma(close, slow_length)
+
+// 定义买入和卖出条件
+buy_condition = ta.crossover(close, slow_ma)
+sell_condition = ta.crossunder(close, slow_ma)
+
+// 策略逻辑
+if (buy_condition)
+    strategy.entry("Buy", strategy.long)
+
+if (sell_condition)
+    strategy.close("Buy")  // 平仓做多仓位
+
+// 绘制移动平均线
+plot(slow_ma, color = color.red, title = "Slow MA")
